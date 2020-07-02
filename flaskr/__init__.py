@@ -127,6 +127,28 @@ def create_app(test_config=None):
         except:
             abort(422)
 
+    @app.route('/users/search', methods=['POST'])
+    def search_user():
+        try:
+            body = request.get_json()
+            name = str(body.get('name'))
+
+            users = User.query.filter(User.name.ilike(
+                '%{}%'.format(name))).all()
+
+            if users is None:
+                abort(404)
+
+            current_users = paginate_users(request, users)
+
+            return jsonify({
+                'success': True,
+                'users': current_users,
+                'total_users': len(users)
+            })
+        except:
+            abort(422)
+
     @app.errorhandler(404)
     def not_found(error):
         return jsonify({

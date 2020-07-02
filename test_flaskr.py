@@ -11,6 +11,7 @@ class UserTestCase(unittest.TestCase):
     def setUp(self):
         self.app = create_app()
         self.client = self.app.test_client
+        # its better to use another database for testing, but here to make things simple I am using the same database
         setup_db(self.app)
 
         self.new_user = {
@@ -73,24 +74,42 @@ class UserTestCase(unittest.TestCase):
         self.assertEqual(data['message'], 'method not allowed')
 
     def test_delete_user(self):
-        res = self.client().delete('/users/2')
+        res = self.client().delete('/users/12')
         data = json.loads(res.data)
-        book = User.query.filter(User.id == 1).one_or_none()
+        user = User.query.filter(User.id == 12).one_or_none()
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-        self.assertEqual(data['deleted'], 2)
+        self.assertEqual(data['deleted'], 12)
         self.assertTrue(data['total_users'])
         self.assertTrue(len(data['users']))
-        self.assertEqual(book, None)
+        self.assertEqual(user, None)
 
-    def test_422_if_book_does_not_exist(self):
+    def test_422_if_user_does_not_exist(self):
         res = self.client().delete('users/1000')
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 422)
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'unprocessable')
+
+    def test_search_users_with_results(self):
+        res = self.client().post('/users/search', json={'name': 'Ryan'})
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['total_users'])
+        self.assertEqual(len(data['users']), 1)
+
+    def test_search_users_without_results(self):
+        res = self.client().post('/users/search', json={'name': 'fjgdfhgjdhk'})
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertEqual(data['total_users'], 0)
+        self.assertEqual(len(data['users']), 0)
 
 
 if __name__ == "__main__":
