@@ -31,7 +31,7 @@ General:
 - Results are paginated in groups of 3. Include a request argument to choose page number, starting from 1
 
 Sample:
-curl http://127.0.0.1:5000/users
+`curl http://127.0.0.1:5000/users`
 
 ```
 {
@@ -64,7 +64,7 @@ General:
 - Creates a new user using the submitted name and email. Returns the id of the created user, success value, total users and users list based on current page number to update the frontend.
 
 Sample:
-curl http://127.0.0.1:5000/users?page=3 -X POST -H "Content-Type: application/json" -d '{"name":"Bradley", "email":"bradley@mail.com"}'
+`curl http://127.0.0.1:5000/users?page=3 -X POST -H "Content-Type: application/json" -d '{"name":"Bradley", "email":"bradley@mail.com"}'`
 
 ```
 {
@@ -98,7 +98,7 @@ General:
 - Deletes the user of the given id if it exists. Returns the id of the deleted user, success value, total users, and users list based on current page number to update the frontend.
 
 Sample:
-curl -X DELETE http://127.0.0.1:5000/users/9?page=3
+`curl -X DELETE http://127.0.0.1:5000/users/9?page=3`
 
 ```
 {
@@ -132,7 +132,7 @@ General:
 - If provided, updates the name of the specified user. Returns the success value and the id of the modified user
 
 Sample:
-curl http://127.0.0.1:5000/users/8 -X PATCH -H "Content-Type: application/json" -d '{"name": "Andrei"}'
+`curl http://127.0.0.1:5000/users/8 -X PATCH -H "Content-Type: application/json" -d '{"name": "Andrei"}'`
 
 ```
 {
