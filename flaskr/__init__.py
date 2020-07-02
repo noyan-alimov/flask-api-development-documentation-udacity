@@ -24,11 +24,17 @@ def create_app(test_config=None):
         users = User.query.all()
         formatted_users = [user.format() for user in users]
 
-        return jsonify({
-            'success': True,
-            'users': formatted_users[start:end],
-            'total_users': len(formatted_users)
-        })
+        if formatted_users[start:end] == []:
+            abort(404)
+
+        try:
+            return jsonify({
+                'success': True,
+                'users': formatted_users[start:end],
+                'total_users': len(formatted_users)
+            })
+        except:
+            abort(400)
 
     @app.route('/users/<int:user_id>')
     def get_specific_user(user_id):
