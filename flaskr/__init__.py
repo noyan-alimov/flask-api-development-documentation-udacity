@@ -66,8 +66,10 @@ def create_app(test_config=None):
             if user is None:
                 abort(404)
 
-            if 'rating' in body:
-                book.rating = int(body.get('rating'))
+            if 'name' in body:
+                user.name = str(body.get('name'))
+            else:
+                abort(400)
 
             user.update()
 
