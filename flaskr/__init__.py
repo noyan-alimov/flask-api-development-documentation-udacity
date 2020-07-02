@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request, abort
 from flask_cors import CORS
-from models import setup_db, Plant
+from flaskr.models import setup_db, User
 
 
 def create_app(test_config=None):
@@ -16,31 +16,31 @@ def create_app(test_config=None):
                              'GET, POST, PATCH, DELETE, OPTIONS')
         return response
 
-    @app.route('/plants')
-    def get_plants():
+    @app.route('/users')
+    def get_users():
         page = request.args.get('page', 1, type=int)
-        start = (page - 1) * 10
-        end = start + 10
-        plants = Plant.query.all()
-        formatted_plants = [plant.format() for plant in plants]
+        start = (page - 1) * 3
+        end = start + 3
+        users = User.query.all()
+        formatted_users = [user.format() for user in users]
 
         return jsonify({
             'success': True,
-            'plants': formatted_plants[start:end],
-            'total_plants': len(formatted_plants)
+            'users': formatted_users[start:end],
+            'total_users': len(formatted_users)
         })
 
-    @app.route('/plants/<int:plant_id>')
-    def get_specific_plant(plant_id):
-        plant = Plant.query.filter(Plant.id == plant_id).one_or_none()
+    @app.route('/users/<int:user_id>')
+    def get_specific_user(user_id):
+        user = User.query.filter(User.id == user_id).one_or_none()
 
-        if plant is None:
+        if user is None:
             abort(404)
 
         else:
             return jsonify({
                 'success': True,
-                'plant': plant.format()
+                'user': user.format()
             })
 
     return app

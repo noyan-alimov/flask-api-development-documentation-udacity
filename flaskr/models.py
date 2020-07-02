@@ -10,25 +10,21 @@ def setup_db(app):
     app.config['SECRET_KEY'] = 'mysecret'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://postgres:password@localhost:5432/example'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    db.app(app)
+    db.app = app
     db.init_app(app)
     db.create_all()
 
 
-class Plant(db.Model):
-    __tablename__ = 'plants'
+class User(db.Model):
+    __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
-    scientific_name = Column(String)
-    is_poisonous = Column(Boolean)
-    primary_color = Column(String)
+    email = Column(String)
 
-    def __init__(self, name, scientific_name, is_poisonous, primary_color):
+    def __init__(self, name, email):
         self.name = name
-        self.scientific_name = scientific_name
-        self.is_poisonous = is_poisonous
-        self.primary_color = primary_color
+        self.email = email
 
     def insert(self):
         db.session.add(self)
@@ -45,7 +41,5 @@ class Plant(db.Model):
         return {
             'id': self.id,
             'name': self.name,
-            'scientific_name': self.scientific_name,
-            'is_poisonous': self.is_poisonous,
-            'primary_color': self.primary_color
+            'email': self.email
         }
