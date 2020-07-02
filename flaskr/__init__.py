@@ -3,6 +3,17 @@ from flask_cors import CORS
 from flaskr.models import setup_db, User
 
 
+def paginate_users(request, selection):
+    page = request.args.get('page', 1, type=int)
+    start = (page - 1) * 3
+    end = start + 3
+
+    users = [user.format() for user in selection]
+    current_users = users[start:end]
+
+    return current_users
+
+
 def create_app(test_config=None):
     app = Flask(__name__)
     setup_db(app)
@@ -18,20 +29,17 @@ def create_app(test_config=None):
 
     @app.route('/users')
     def get_users():
-        page = request.args.get('page', 1, type=int)
-        start = (page - 1) * 3
-        end = start + 3
-        users = User.query.all()
-        formatted_users = [user.format() for user in users]
+        users = User.query.order_by(User.id).all()
+        current_users = paginate_users(request, users)
 
-        if formatted_users[start:end] == []:
+        if len(current_users) == 0:
             abort(404)
 
         try:
             return jsonify({
                 'success': True,
-                'users': formatted_users[start:end],
-                'total_users': len(formatted_users)
+                'users': current_users,
+                'total_users': len(User.query.all())
             })
         except:
             abort(400)
@@ -48,6 +56,74 @@ def create_app(test_config=None):
                 'success': True,
                 'user': user.format()
             })
+
+    @app.route('/users/<int:user_id>', methods=['PATCH'])
+    def update_user(user_id):
+        body = request.get_json()
+
+        try:
+            user = User.query.filter(User.id == user_id).one_or_none()
+            if user is None:
+                abort(404)
+
+            if 'rating' in body:
+                book.rating = int(body.get('rating'))
+
+            user.update()
+
+            return jsonify({
+                'success': True,
+            })
+
+        except:
+            abort(400)
+
+    @app.route('/users', methods=['POST'])
+    def create_user():
+        body = request.get_json()
+
+        name = body.get('name', None)
+        email = body.get('email', None)
+
+        try:
+            user = User(name=name, email=email)
+            user.insert()
+
+            users = User.query.order_by(User.id).all()
+            current_users = paginate_users(request, users)
+
+            return jsonify({
+                'success': True,
+                'created': user.id,
+                'users': current_users,
+                'total_users': len(User.query.all())
+            })
+
+        except:
+            abort(422)
+
+    @app.route('/users/<int:user_id>', methods=['DELETE'])
+    def delete_user(user_id):
+        try:
+            user = User.query.filter(User.id == user_id).one_or_none()
+
+            if user is None:
+                abort(404)
+
+            user.delete()
+
+            users = User.query.order_by(User.id).all()
+            current_users = paginate_users(request, users)
+
+            return jsonify({
+                'success': True,
+                'deleted': user_id,
+                'users': current_users,
+                'total_users': len(User.query.all())
+            })
+
+        except:
+            abort(422)
 
     @app.errorhandler(404)
     def not_found(error):
