@@ -55,6 +55,43 @@ class UserTestCase(unittest.TestCase):
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'bad request')
 
+    def test_create_user(self):
+        res = self.client().post('/users', json=self.new_user)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['created'])
+        self.assertTrue(len(data['users']))
+
+    def test_if_user_creation_not_allowed(self):
+        res = self.client().post('/users/32', json=self.new_user)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 405)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'method not allowed')
+
+    def test_delete_user(self):
+        res = self.client().delete('/users/2')
+        data = json.loads(res.data)
+        book = User.query.filter(User.id == 1).one_or_none()
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertEqual(data['deleted'], 2)
+        self.assertTrue(data['total_users'])
+        self.assertTrue(len(data['users']))
+        self.assertEqual(book, None)
+
+    def test_422_if_book_does_not_exist(self):
+        res = self.client().delete('users/1000')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'unprocessable')
+
 
 if __name__ == "__main__":
     unittest.main()
