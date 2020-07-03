@@ -59,7 +59,7 @@ In order to run tests navigate to the backend folder and run the following comma
 ```
 dropdb bookshelf_test
 createdb bookshelf_test
-psql bookshelf_test < books.psql
+psql -U username -d dbname < filename.psql
 python test_flaskr.py
 ```
 
